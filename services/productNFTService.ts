@@ -38,3 +38,17 @@ export async function getNFTOwner(
 
   return await productNFT.ownerOf(tokenId);
 }
+
+export async function getTokenURI(
+  ethers: any,
+  contractAddress: string,
+  tokenId: bigint
+): Promise<string> {
+  const productNFT = new ethers.Contract(
+    contractAddress,
+    ["function tokenURI(uint256 tokenId) view returns (string)"],
+    ethers.provider
+  );
+
+  return await productNFT.tokenURI(tokenId);
+}

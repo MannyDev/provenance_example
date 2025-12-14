@@ -1,5 +1,5 @@
 import { network } from "hardhat";
-import { mintProductNFT, getNFTOwner } from "../services/productNFTService";
+import { mintProductNFT, getNFTOwner, getTokenURI } from "../services/productNFTService";
 
 async function main() {
   const { ethers } = await network.connect({ network: "localhost" });
@@ -27,6 +27,15 @@ async function main() {
   );
 
   console.log("Owner of token", tokenId.toString(), "is:", nftOwner);
+
+  const tokenURI = await getTokenURI(
+    ethers,
+    PRODUCT_NFT_ADDRESS,
+    tokenId
+  );
+
+  console.log("Token URI:", tokenURI);
+
 }
 
 main().catch((error) => {
