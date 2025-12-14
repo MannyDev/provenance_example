@@ -1,28 +1,16 @@
-import { Signer } from "ethers";
+import { Contract, Signer } from "ethers";
 
-export async function recordSupplyChainEvent(
-  ethers: any,
-  contractAddress: string,
+export async function registerBatch(
   signer: Signer,
-  tokenId: bigint,
-  description: string
-) {
-  const SupplyChain = await ethers.getContractFactory("SupplyChain");
-  const supplyChain = SupplyChain.attach(contractAddress).connect(signer);
-
-  const tx = await supplyChain.addEvent(tokenId, description);
-  await tx.wait();
-
-  console.log("✔ Supply chain event recorded:", description);
-}
-
-export async function getProductHistory(
-  ethers: any,
-  contractAddress: string,
+  supplyChainAddress: string,
   tokenId: bigint
 ) {
-  const SupplyChain = await ethers.getContractFactory("SupplyChain");
-  const supplyChain = SupplyChain.attach(contractAddress);
+  const supplyChain = new Contract(
+    supplyChainAddress,
+    ["function registerBatch(uint256 tokenId)"],
+    signer
+  );
 
-  return await supplyChain.getEvents(tokenId);
+  const tx = await supplyChain.registerBatch(tokenId);
+  await tx.wait();
 }

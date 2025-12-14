@@ -1,30 +1,25 @@
 import { network } from "hardhat";
-import {
-  mintProductNFT,
-  getNFTOwner,
-} from "../services/productNFTService";
+import { mintProductNFT, getNFTOwner } from "../services/productNFTService";
 
 async function main() {
-  // Connect explicitly to localhost
   const { ethers } = await network.connect({ network: "localhost" });
-
   const [owner] = await ethers.getSigners();
 
-  const PRODUCT_NFT_ADDRESS = "PASTE_DEPLOYED_PRODUCTNFT_ADDRESS_HERE";
-
-  const tokenId = 0n;
+  const PRODUCT_NFT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
   console.log("Using signer:", owner.address);
 
-  // Mint NFT
-  await mintProductNFT(
+  const metadataURI = "ipfs://TEST_BATCH_001";
+
+  const tokenId = await mintProductNFT(
     ethers,
     PRODUCT_NFT_ADDRESS,
     owner,
-    tokenId
+    metadataURI
   );
 
-  // Query owner
+  console.log("Minted tokenId:", tokenId.toString());
+
   const nftOwner = await getNFTOwner(
     ethers,
     PRODUCT_NFT_ADDRESS,

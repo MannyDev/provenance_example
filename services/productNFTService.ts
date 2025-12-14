@@ -1,31 +1,40 @@
-import { Signer } from "ethers";
+import { Contract, Signer } from "ethers";
 
 export async function mintProductNFT(
   ethers: any,
   contractAddress: string,
   signer: Signer,
-  tokenId: bigint
-) {
-  const ProductNFT = await ethers.getContractFactory("ProductNFT");
-  const nft = ProductNFT.attach(contractAddress).connect(signer);
+  metadataURI: string
+): Promise<bigint> {
+  const productNFT = new Contract(
+    contractAddress,
+    [
+      "function mint(address to, string metadataURI) returns (uint256)",
+      "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+    ],
+    signer
+  );
 
-  const tx = await nft.mint(await signer.getAddress(), tokenId);
-  await tx.wait();
+  const tx = await productNFT.mint(await signer.getAddress(), metadataURI);
+  const receipt = await tx.wait();
 
-  console.log("✔ NFT minted for product", await signer.getAddress());
+  const transferEvent = receipt.logs.find(
+    (log: any) => log.fragment?.name === "Transfer"
+  );
+
+  return transferEvent.args.tokenId;
 }
 
 export async function getNFTOwner(
   ethers: any,
   contractAddress: string,
   tokenId: bigint
-): Promise<string | null> {
-  const ProductNFT = await ethers.getContractFactory("ProductNFT");
-  const nft = ProductNFT.attach(contractAddress);
+): Promise<string> {
+  const productNFT = new Contract(
+    contractAddress,
+    ["function ownerOf(uint256 tokenId) view returns (address)"],
+    ethers.provider
+  );
 
-  try {
-    return await nft.ownerOf(tokenId);
-  } catch {
-    return null;
-  }
+  return await productNFT.ownerOf(tokenId);
 }
