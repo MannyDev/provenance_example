@@ -1,28 +1,40 @@
+import { network } from "hardhat";
 import {
-  mint,
+  mintProductNFT,
   getNFTOwner,
-  getNFTMetadataURI,
-  getNFTsByOwner
 } from "../services/productNFTService";
 
-import { ethers } from "ethers";
-
 async function main() {
-  // connect to local node
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-  const signer = await provider.getSigner(0);
-  const ownerAddress = await signer.getAddress();
+  // Connect explicitly to localhost
+  const { ethers } = await network.connect({ network: "localhost" });
 
-  // mint NFT to ownerAddress
-  await mint(ownerAddress, "ipfs://QmExampleCidForMetadata");
+  const [owner] = await ethers.getSigners();
 
-  console.log("Owner:", await getNFTOwner(1));
-  console.log("Metadata:", await getNFTMetadataURI(1));
+  const PRODUCT_NFT_ADDRESS = "PASTE_DEPLOYED_PRODUCTNFT_ADDRESS_HERE";
 
-  console.log(
-    "NFTs owned by ownerAddress:",
-    await getNFTsByOwner(ownerAddress)
+  const tokenId = 0n;
+
+  console.log("Using signer:", owner.address);
+
+  // Mint NFT
+  await mintProductNFT(
+    ethers,
+    PRODUCT_NFT_ADDRESS,
+    owner,
+    tokenId
   );
+
+  // Query owner
+  const nftOwner = await getNFTOwner(
+    ethers,
+    PRODUCT_NFT_ADDRESS,
+    tokenId
+  );
+
+  console.log("Owner of token", tokenId.toString(), "is:", nftOwner);
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

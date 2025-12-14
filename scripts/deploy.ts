@@ -2,7 +2,7 @@ import { network } from "hardhat";
 
 async function main() {
   
-  const { ethers } = await network.connect({ network: "hardhatOp" });
+  const { ethers } = await network.connect({ network: "localhost" });
 
   // Deploy ProductNFT contract
   const ProductNFT = await ethers.getContractFactory("ProductNFT");
